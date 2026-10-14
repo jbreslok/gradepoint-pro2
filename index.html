@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>GradePoint Pro</title>
+
+  <!-- iPad / iOS Web App Meta Tags for Home Screen Standalone Mode -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="GradePoint" />
+  <meta name="theme-color" content="#020617" />
+
+  <!-- Custom SVG App Icon for iPad Home Screen -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='120' height='120' rx='28' fill='%230f172a'/%3E%3Crect x='14' y='14' width='92' height='92' rx='22' fill='url(%23g)'/%3E%3Ctext x='60' y='74' text-anchor='middle' fill='%23ffffff' font-family='-apple-system, sans-serif' font-size='44' font-weight='900'%3EA+%3C/text%3E%3C/svg%3E" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='120' height='120' rx='28' fill='%230f172a'/%3E%3Crect x='14' y='14' width='92' height='92' rx='22' fill='url(%23g)'/%3E%3Ctext x='60' y='74' text-anchor='middle' fill='%23ffffff' font-family='-apple-system, sans-serif' font-size='44' font-weight='900'%3EA+%3C/text%3E%3C/svg%3E" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- React 18 + Babel Standalone -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      background-color: #020617;
+      color: #f1f5f9;
+      margin: 0;
+      overscroll-behavior-y: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    const IconWrapper = ({ children, className = "w-5 h-5" }) => (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={className}
+      >
+        {children}
+      </svg>
+    );
+
+    const Calculator = ({ className }) => (
+      <IconWrapper className={className}>
+        <rect width="16" height="20" x="4" y="2" rx="2" />
+        <line x1="8" x2="16" y1="6" y2="6" />
+        <line x1="16" x2="16" y1="14" y2="18" />
+        <path d="M16 10h.01" /><path d="M12 10h.01" /><path d="M8 10h.01" />
+        <path d="M12 14h.01" /><path d="M8 14h.01" /><path d="M12 18h.01" /><path d="M8 18h.01" />
+      </IconWrapper>
+    );
+
+    const Plus = ({ className }) => (
+      <IconWrapper className={className}>
+        <path d="M5 12h14" /><path d="M12 5v14" />
+      </IconWrapper>
+    );
+
+    const Trash2 = ({ className }) => (
+      <IconWrapper className={className}>
+        <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+        <line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" />
+      </IconWrapper>
+    );
+
+    const Edit3 = ({ className }) => (
+      <IconWrapper className={className}>
+        <path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+      </IconWrapper>
+    );
+
+    const Check = ({ className }) => (
+      <IconWrapper className={className}>
+        <path d="M20 6 9 17l-5-5" />
+      </IconWrapper>
+    );
+
+    const X = ({ className }) => (
+      <IconWrapper className={className}>
+        <path d="M18 6 6 18" /><path d="M6 6 18 18" />
+      </IconWrapper>
+    );
+
+    const Settings = ({ className }) => (
+      <IconWrapper className={className}>
+        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+        <circle cx="12" cy="12" r="3" />
+      </IconWrapper>
+    );
+
+    const Percent = ({ className }) => (
+      <IconWrapper className={className}>
+        <line x1="19" x2="5" y1="5" y2="19" />
+        <circle cx="6.5" cy="6.5" r="2.5" /><circle cx="17.5" cy="17.5" r="2.5" />
+      </IconWrapper>
+    );
+
+    const Hash = ({ className }) => (
+      <IconWrapper className={className}>
+        <line x1="4" x2="20" y1="9" y2="9" /><line x1="4" x2="20" y1="15" y2="15" />
+        <line x1="10" x2="8" y1="3" y2="21" /><line x1="16" x2="14" y1="3" y2="21" />
+      </IconWrapper>
+    );
+
+    const RefreshCw = ({ className }) => (
+      <IconWrapper className={className}>
+        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+        <path d="M21 3v5h-5" />
+        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+        <path d="M8 16H3v5" />
+      </IconWrapper>
+    );
+
+    const Sliders = ({ className }) => (
+      <IconWrapper className={className}>
+        <line x1="4" x2="4" y1="21" y2="14" /><line x1="4" x2="4" y1="10" y2="3" />
+        <line x1="12" x2="12" y1="21" y2="12" /><line x1="12" x2="12" y1="8" y2="3" />
+        <line x1="20" x2="20" y1="21" y2="16" /><line x1="20" x2="20" y1="12" y2="3" />
+        <line x1="2" x2="6" y1="14" y2="14" /><line x1="10" x2="14" y1="8" y2="8" />
+        <line x1="18" x2="22" y1="16" y2="16" />
+      </IconWrapper>
+    );
+
+    const Sparkles = ({ className }) => (
+      <IconWrapper className={className}>
+        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+        <path d="M5 3v4" /><path d="M19 17v4" /><path d="M3 5h4" /><path d="M17 19h4" />
+      </IconWrapper>
+    );
+
+    const FileText = ({ className }) => (
+      <IconWrapper className={className}>
+        <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+        <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+        <path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" />
+      </IconWrapper>
+    );
+
+    const TrendingUp = ({ className }) => (
+      <IconWrapper className={className}>
+        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+        <polyline points="16 7 22 7 22 13" />
+      </IconWrapper>
+    );
+
+    const FolderPlus = ({ className }) => (
+      <IconWrapper className={className}>
+        <path d="M12 10v6" /><path d="M9 13h6" />
+        <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
+      </IconWrapper>
+    );
+
+    const Cloud = ({ className }) => (
+      <IconWrapper className={className}>
+        <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+      </IconWrapper>
+    );
+
+    const Layers = ({ className }) => (
+      <IconWrapper className={className}>
+        <polygon points="12 2 2 7 12 12 22 7 12 2" />
+        <polyline points="2 17 12 22 22 17" />
+        <polyline points="2 12 12 17 22 12" />
+      </IconWrapper>
+    );
+
+    const STORAGE_KEY = 'gradepoint_pro_dark_v6';
+
+    const SCALE_PRESETS = {
+      standard90: {
+        name: 'Standard 90% Scale (A- = 90%)',
+        cutoffs: [
+          { grade: 'A+', min: 97 },
+          { grade: 'A', min: 93 },
+          { grade: 'A-', min: 90 },
+          { grade: 'B+', min: 87 },
+          { grade: 'B', min: 83 },
+          { grade: 'B-', min: 80 },
+          { grade: 'C+', min: 77 },
+          { grade: 'C', min: 73 },
+          { grade: 'C-', min: 70 },
+          { grade: 'D+', min: 67 },
+          { grade: 'D', min: 63 },
+          { grade: 'D-', min: 60 },
+          { grade: 'F', min: 0 }
+        ]
+      },
+      shifted85: {
+        name: '85% A- Scale (10-pt bounds starting at 85)',
+        cutoffs: [
+          { grade: 'A+', min: 92 },
+          { grade: 'A', min: 88 },
+          { grade: 'A-', min: 85 },
+          { grade: 'B+', min: 82 },
+          { grade: 'B', min: 78 },
+          { grade: 'B-', min: 75 },
+          { grade: 'C+', min: 72 },
+          { grade: 'C', min: 68 },
+          { grade: 'C-', min: 65 },
+          { grade: 'D+', min: 62 },
+          { grade: 'D', min: 58 },
+          { grade: 'D-', min: 55 },
+          { grade: 'F', min: 0 }
+        ]
+      }
+    };
+
+    const INITIAL_SUBJECTS = [
+      {
+        id: 'subj-ap-stats',
+        name: 'AP Statistics',
+        iconColor: 'indigo',
+        use85Scale: true,
+        useWeightedView: true,
+        efflPercent: 100,
+        weights: {
+          Assessments: 85,
+          Assignment: 10,
+          EFFL: 5
+        },
+        customCutoffs: JSON.parse(JSON.stringify(SCALE_PRESETS.shifted85.cutoffs)),
+        guidelines: {
+          Test: 60,
+          Quiz: 30
+        },
+        entries: [
+          {
+            id: 'ent-1',
+            title: 'Unit 1: Exploring One-Variable Data Quiz',
+            category: 'Quiz',
+            earnedPoints: 27.6,
+            maxPoints: 30,
+            inputMode: 'percent',
+            rawNote: '92% converted to 30-pt Quiz (Assessment)',
+            date: '2026-09-14'
+          },
+          {
+            id: 'ent-2',
+            title: 'Unit 1 Comprehensive Exam',
+            category: 'Test',
+            earnedPoints: 53.0,
+            maxPoints: 60,
+            inputMode: 'direct',
+            rawNote: 'Direct points (53 / 60 pts • Assessment)',
+            date: '2026-09-28'
+          },
+          {
+            id: 'ent-3',
+            title: 'Normal Distribution & Z-Scores Quiz',
+            category: 'Quiz',
+            earnedPoints: 25.5,
+            maxPoints: 30,
+            inputMode: 'rescale',
+            rawNote: 'Rescaled from 17 / 20 raw score to 30 pts (Assessment)',
+            date: '2026-10-06'
+          },
+          {
+            id: 'ent-4',
+            title: 'Chapter 2 Reading Check & Take-Home',
+            category: 'Assignment',
+            earnedPoints: 9.5,
+            maxPoints: 10,
+            inputMode: 'direct',
+            rawNote: 'Take-Home / Reading Check (9.5 / 10 pts)',
+            date: '2026-10-10'
+          }
+        ]
+      }
+    ];
+
+    const CATEGORY_META = {
+      Test: {
+        label: 'Test (Assessment • 60 pts)',
+        shortLabel: 'Test',
+        badgeClass: 'bg-rose-500/15 text-rose-400 border-rose-500/30',
+        activeBtn: 'bg-rose-600 text-white shadow-lg shadow-rose-600/25'
+      },
+      Quiz: {
+        label: 'Quiz (Assessment • 30 pts)',
+        shortLabel: 'Quiz',
+        badgeClass: 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30',
+        activeBtn: 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/25'
+      },
+      Assignment: {
+        label: 'Take-Home / Reading Check',
+        shortLabel: 'Take-Home / RC',
+        badgeClass: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+        activeBtn: 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/25'
+      },
+      Other: {
+        label: 'Other (Unscaled Pts)',
+        shortLabel: 'Other',
+        badgeClass: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
+        activeBtn: 'bg-amber-600 text-white shadow-lg shadow-amber-600/25'
+      }
+    };
+
+    const COLOR_THEMES = {
+      indigo: 'from-indigo-500 to-violet-600',
+      emerald: 'from-emerald-500 to-teal-600',
+      rose: 'from-rose-500 to-pink-600',
+      amber: 'from-amber-500 to-orange-600',
+      cyan: 'from-cyan-500 to-blue-600'
+    };
+
+    function roundToTwo(num) {
+      return Math.round((Number(num) + Number.EPSILON) * 100) / 100;
+    }
+
+    function getLetterGradeInfo(percentage, cutoffs) {
+      if (percentage === null || isNaN(percentage)) {
+        return { letter: '—', color: 'text-slate-400', bg: 'bg-slate-800', nextGrade: null };
+      }
+      const sorted = [...cutoffs].sort((a, b) => b.min - a.min);
+      let matchedIndex = sorted.findIndex((c) => percentage >= c.min);
+      if (matchedIndex === -1) matchedIndex = sorted.length - 1;
+
+      const current = sorted[matchedIndex];
+      const nextUp = matchedIndex > 0 ? sorted[matchedIndex - 1] : null;
+
+      let color = 'text-emerald-400';
+      let bg = 'bg-emerald-500/15 border-emerald-500/30';
+      if (current.grade.startsWith('B')) {
+        color = 'text-indigo-400';
+        bg = 'bg-indigo-500/15 border-indigo-500/30';
+      } else if (current.grade.startsWith('C')) {
+        color = 'text-amber-400';
+        bg = 'bg-amber-500/15 border-amber-500/30';
+      } else if (current.grade.startsWith('D') || current.grade === 'F') {
+        color = 'text-rose-400';
+        bg = 'bg-rose-500/15 border-rose-500/30';
+      }
+
+      return {
+        letter: current.grade,
+        min: current.min,
+        color,
+        bg,
+        nextGrade: nextUp
+      };
+    }
+
+    function calculateSubjectStanding(subj) {
+      if (!subj) return null;
+      const entries = subj.entries || [];
+
+      let totalEarned = 0;
+      let totalMax = 0;
+
+      const byCategory = {
+        Test: { earned: 0, max: 0, count: 0 },
+        Quiz: { earned: 0, max: 0, count: 0 },
+        Assignment: { earned: 0, max: 0, count: 0 },
+        Other: { earned: 0, max: 0, count: 0 }
+      };
+
+      entries.forEach((e) => {
+        const earned = Number(e.earnedPoints) || 0;
+        const max = Number(e.maxPoints) || 0;
+        totalEarned += earned;
+        totalMax += max;
+        const cat = byCategory[e.category] ? e.category : 'Other';
+        byCategory[cat].earned += earned;
+        byCategory[cat].max += max;
+        byCategory[cat].count += 1;
+      });
+
+      const objectivePercent = totalMax > 0 ? (totalEarned / totalMax) * 100 : null;
+
+      const assessmentsEarned =
+        byCategory.Test.earned + byCategory.Quiz.earned + byCategory.Other.earned;
+      const assessmentsMax =
+        byCategory.Test.max + byCategory.Quiz.max + byCategory.Other.max;
+      const assessmentsCount =
+        byCategory.Test.count + byCategory.Quiz.count + byCategory.Other.count;
+      const assessmentsPct =
+        assessmentsMax > 0 ? (assessmentsEarned / assessmentsMax) * 100 : null;
+
+      const takeHomeEarned = byCategory.Assignment.earned;
+      const takeHomeMax = byCategory.Assignment.max;
+      const takeHomeCount = byCategory.Assignment.count;
+      const takeHomePct = takeHomeMax > 0 ? (takeHomeEarned / takeHomeMax) * 100 : null;
+
+      const hasEffl =
+        subj.efflPercent !== '' &&
+        subj.efflPercent !== null &&
+        subj.efflPercent !== undefined &&
+        !isNaN(Number(subj.efflPercent));
+      const efflPct = hasEffl ? Number(subj.efflPercent) : null;
+
+      const wAssess = Number(subj.weights?.Assessments ?? 85);
+      const wAssign = Number(subj.weights?.Assignment ?? 10);
+      const wEffl = Number(subj.weights?.EFFL ?? 5);
+
+      let weightedSum = 0;
+      let activeWeightTotal = 0;
+
+      if (assessmentsPct !== null) {
+        weightedSum += assessmentsPct * wAssess;
+        activeWeightTotal += wAssess;
+      }
+      if (takeHomePct !== null) {
+        weightedSum += takeHomePct * wAssign;
+        activeWeightTotal += wAssign;
+      }
+      if (efflPct !== null) {
+        weightedSum += efflPct * wEffl;
+        activeWeightTotal += wEffl;
+      }
+
+      const weightedPercent =
+        activeWeightTotal > 0 ? weightedSum / activeWeightTotal : null;
+
+      const displayPercent = subj.useWeightedView ? weightedPercent : objectivePercent;
+
+      const activeCutoffs =
+        subj.customCutoffs ||
+        (subj.use85Scale
+          ? SCALE_PRESETS.shifted85.cutoffs
+          : SCALE_PRESETS.standard90.cutoffs);
+
+      const gradeInfo = getLetterGradeInfo(
+        displayPercent !== null ? roundToTwo(displayPercent) : null,
+        activeCutoffs
+      );
+
+      return {
+        totalEarned: roundToTwo(totalEarned),
+        totalMax: roundToTwo(totalMax),
+        objectivePercent: objectivePercent !== null ? roundToTwo(objectivePercent) : null,
+        weightedPercent: weightedPercent !== null ? roundToTwo(weightedPercent) : null,
+        overallPercent: displayPercent !== null ? roundToTwo(displayPercent) : null,
+        assessmentsEarned: roundToTwo(assessmentsEarned),
+        assessmentsMax: roundToTwo(assessmentsMax),
+        assessmentsCount,
+        assessmentsPct: assessmentsPct !== null ? roundToTwo(assessmentsPct) : null,
+        takeHomeEarned: roundToTwo(takeHomeEarned),
+        takeHomeMax: roundToTwo(takeHomeMax),
+        takeHomeCount,
+        takeHomePct: takeHomePct !== null ? roundToTwo(takeHomePct) : null,
+        efflPct: efflPct !== null ? roundToTwo(efflPct) : null,
+        weights: { Assessments: wAssess, Assignment: wAssign, EFFL: wEffl },
+        activeWeightTotal,
+        gradeInfo,
+        byCategory,
+        activeCutoffs
+      };
+    }
+
+    function App() {
+      const [subjects, setSubjects] = useState(() => {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('gradepoint_pro_dark_v5');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              return parsed.map((s) => ({
+                ...s,
+                useWeightedView: s.useWeightedView !== undefined ? s.useWeightedView : true,
+                efflPercent: s.efflPercent !== undefined ? s.efflPercent : 100,
+                weights: s.weights || { Assessments: 85, Assignment: 10, EFFL: 5 }
+              }));
+            }
+          }
+        } catch (err) {
+          console.error('Failed loading saved gradebooks:', err);
+        }
+        return INITIAL_SUBJECTS;
+      });
+
+      const [activeSubjectId, setActiveSubjectId] = useState(() => subjects[0]?.id || INITIAL_SUBJECTS[0].id);
+      const [categoryFilter, setCategoryFilter] = useState('All');
+
+      // Modals / Drawers state
+      const [isAddEntryOpen, setIsAddEntryOpen] = useState(false);
+      const [editingEntry, setEditingEntry] = useState(null);
+      const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
+      const [isScaleModalOpen, setIsScaleModalOpen] = useState(false);
+      const [isWhatIfOpen, setIsWhatIfOpen] = useState(false);
+
+      // Entry Form State
+      const [entryTitle, setEntryTitle] = useState('');
+      const [entryCategory, setEntryCategory] = useState('Quiz');
+      const [entryDate, setEntryDate] = useState(() => new Date().toISOString().split('T')[0]);
+      const [calcMode, setCalcMode] = useState('direct'); // 'direct' | 'percent' | 'rescale'
+
+      // Inputs for grade entry
+      const [directEarned, setDirectEarned] = useState('');
+      const [directMax, setDirectMax] = useState('30');
+      const [percentInput, setPercentInput] = useState('');
+      const [targetGuidelineMax, setTargetGuidelineMax] = useState('30');
+      const [rawEarned, setRawEarned] = useState('');
+      const [rawOutOf, setRawOutOf] = useState('');
+
+      // Subject Form State
+      const [subjName, setSubjName] = useState('');
+      const [subjColor, setSubjColor] = useState('indigo');
+      const [subjUse85, setSubjUse85] = useState(true);
+      const [subjUseWeighted, setSubjUseWeighted] = useState(true);
+      const [guidelineTest, setGuidelineTest] = useState('60');
+      const [guidelineQuiz, setGuidelineQuiz] = useState('30');
+
+      // What-If Calculator State
+      const [whatIfCategory, setWhatIfCategory] = useState('Test');
+      const [whatIfMaxPoints, setWhatIfMaxPoints] = useState('60');
+      const [whatIfHypotheticalEarned, setWhatIfHypotheticalEarned] = useState('54');
+
+      useEffect(() => {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(subjects));
+        } catch (err) {
+          console.error('Failed saving to localStorage:', err);
+        }
+      }, [subjects]);
+
+      const activeSubject = useMemo(() => {
+        return subjects.find((s) => s.id === activeSubjectId) || subjects[0] || null;
+      }, [subjects, activeSubjectId]);
+
+      const stats = useMemo(() => calculateSubjectStanding(activeSubject), [activeSubject]);
+
+      const saveSubjectToStore = (updatedSubject) => {
+        setSubjects((prev) => {
+          const exists = prev.some((s) => s.id === updatedSubject.id);
+          if (exists) {
+            return prev.map((s) => (s.id === updatedSubject.id ? updatedSubject : s));
+          }
+          return [...prev, updatedSubject];
+        });
+      };
+
+      const handleSelectEntryCategory = (cat) => {
+        setEntryCategory(cat);
+        if (cat === 'Test') {
+          setCalcMode('direct');
+          setDirectMax(String(activeSubject?.guidelines?.Test ?? 60));
+          setTargetGuidelineMax(String(activeSubject?.guidelines?.Test ?? 60));
+        } else if (cat === 'Quiz') {
+          setCalcMode('direct');
+          setDirectMax(String(activeSubject?.guidelines?.Quiz ?? 30));
+          setTargetGuidelineMax(String(activeSubject?.guidelines?.Quiz ?? 30));
+        } else if (cat === 'Assignment') {
+          // Take-Home / RC is custom earned / out of
+          setCalcMode('direct');
+          setDirectMax('');
+        } else {
+          setCalcMode('direct');
+          setDirectMax('');
+        }
+      };
+
+      const openNewEntryModal = (defaultCat = 'Quiz') => {
+        if (!activeSubject) return;
+        setEditingEntry(null);
+        setEntryTitle('');
+        setEntryCategory(defaultCat);
+        setDirectEarned('');
+        if (defaultCat === 'Test') {
+          const m = String(activeSubject.guidelines?.Test ?? 60);
+          setDirectMax(m);
+          setTargetGuidelineMax(m);
+        } else if (defaultCat === 'Quiz') {
+          const m = String(activeSubject.guidelines?.Quiz ?? 30);
+          setDirectMax(m);
+          setTargetGuidelineMax(m);
+        } else {
+          setDirectMax('');
+          setTargetGuidelineMax('10');
+        }
+        setPercentInput('');
+        setRawEarned('');
+        setRawOutOf('');
+        setCalcMode('direct');
+        setEntryDate(new Date().toISOString().split('T')[0]);
+        setIsAddEntryOpen(true);
+      };
+
+      const openEditEntryModal = (entry) => {
+        if (!activeSubject) return;
+        setEditingEntry(entry);
+        setEntryTitle(entry.title);
+        setEntryCategory(entry.category || 'Quiz');
+        setEntryDate(entry.date || new Date().toISOString().split('T')[0]);
+        setCalcMode('direct');
+        setDirectEarned(String(entry.earnedPoints));
+        setDirectMax(String(entry.maxPoints));
+        setTargetGuidelineMax(String(entry.maxPoints));
+        const pct = entry.maxPoints > 0 ? roundToTwo((entry.earnedPoints / entry.maxPoints) * 100) : '';
+        setPercentInput(String(pct));
+        setRawEarned(String(entry.earnedPoints));
+        setRawOutOf(String(entry.maxPoints));
+        setIsAddEntryOpen(true);
+      };
+
+      const calculatedPreview = useMemo(() => {
+        const isAutoScaled = entryCategory === 'Test' || entryCategory === 'Quiz';
+        const effectiveMode = isAutoScaled ? calcMode : 'direct';
+        const catTag = isAutoScaled ? `${entryCategory} • Assessment` : entryCategory === 'Assignment' ? 'Take-Home / RC' : 'Other';
+
+        if (effectiveMode === 'direct') {
+          const e = parseFloat(directEarned);
+          const m = parseFloat(directMax);
+          if (isNaN(e) || isNaN(m) || m <= 0) return { valid: false };
+          return {
+            valid: true,
+            earned: roundToTwo(e),
+            max: roundToTwo(m),
+            percent: roundToTwo((e / m) * 100),
+            note: `${catTag} (${roundToTwo(e)} / ${roundToTwo(m)} pts)`
+          };
+        }
+
+        if (effectiveMode === 'percent') {
+          const pct = parseFloat(percentInput);
+          const m = parseFloat(targetGuidelineMax);
+          if (isNaN(pct) || isNaN(m) || m <= 0) return { valid: false };
+          const earned = (pct / 100) * m;
+          return {
+            valid: true,
+            earned: roundToTwo(earned),
+            max: roundToTwo(m),
+            percent: roundToTwo(pct),
+            note: `${roundToTwo(pct)}% scaled to ${roundToTwo(m)}-pt ${catTag}`
+          };
+        }
+
+        if (effectiveMode === 'rescale') {
+          const re = parseFloat(rawEarned);
+          const rm = parseFloat(rawOutOf);
+          const m = parseFloat(targetGuidelineMax);
+          if (isNaN(re) || isNaN(rm) || rm <= 0 || isNaN(m) || m <= 0) return { valid: false };
+          const scaledEarned = (re / rm) * m;
+          return {
+            valid: true,
+            earned: roundToTwo(scaledEarned),
+            max: roundToTwo(m),
+            percent: roundToTwo((re / rm) * 100),
+            note: `Rescaled ${roundToTwo(re)}/${roundToTwo(rm)} to ${roundToTwo(m)}-pt ${catTag}`
+          };
+        }
+
+        return { valid: false };
+      }, [
+        entryCategory,
+        calcMode,
+        directEarned,
+        directMax,
+        percentInput,
+        targetGuidelineMax,
+        rawEarned,
+        rawOutOf
+      ]);
+
+      const handleSaveEntry = (e) => {
+        e.preventDefault();
+        if (!activeSubject || !calculatedPreview.valid) return;
+
+        const defaultBaseName =
+          entryCategory === 'Assignment'
+            ? 'Take-Home / RC'
+            : entryCategory;
+
+        const finalTitle =
+          entryTitle.trim() ||
+          `${defaultBaseName} #${(activeSubject.entries?.filter((x) => x.category === entryCategory).length || 0) + 1}`;
+
+        const newEntryObj = {
+          id: editingEntry ? editingEntry.id : `ent-${Date.now()}`,
+          title: finalTitle,
+          category: entryCategory,
+          earnedPoints: calculatedPreview.earned,
+          maxPoints: calculatedPreview.max,
+          inputMode: entryCategory === 'Test' || entryCategory === 'Quiz' ? calcMode : 'direct',
+          rawNote: calculatedPreview.note,
+          date: entryDate
+        };
+
+        const updatedEntries = editingEntry
+          ? activeSubject.entries.map((item) => (item.id === editingEntry.id ? newEntryObj : item))
+          : [newEntryObj, ...(activeSubject.entries || [])];
+
+        saveSubjectToStore({
+          ...activeSubject,
+          entries: updatedEntries
+        });
+
+        setIsAddEntryOpen(false);
+      };
+
+      const handleDeleteEntry = (entryId) => {
+        if (!activeSubject) return;
+        const updatedEntries = activeSubject.entries.filter((item) => item.id !== entryId);
+        saveSubjectToStore({
+          ...activeSubject,
+          entries: updatedEntries
+        });
+      };
+
+      const handleToggle85Scale = (checked) => {
+        if (!activeSubject) return;
+        const newCutoffs = checked
+          ? JSON.parse(JSON.stringify(SCALE_PRESETS.shifted85.cutoffs))
+          : JSON.parse(JSON.stringify(SCALE_PRESETS.standard90.cutoffs));
+
+        saveSubjectToStore({
+          ...activeSubject,
+          use85Scale: checked,
+          customCutoffs: newCutoffs
+        });
+      };
+
+      const handleToggleWeightedView = (checked) => {
+        if (!activeSubject) return;
+        saveSubjectToStore({
+          ...activeSubject,
+          useWeightedView: checked
+        });
+      };
+
+      const handleEfflChange = (val) => {
+        if (!activeSubject) return;
+        saveSubjectToStore({
+          ...activeSubject,
+          efflPercent: val === '' ? '' : Number(val)
+        });
+      };
+
+      const handleUpdateSingleCutoff = (gradeLabel, newMinVal) => {
+        if (!activeSubject) return;
+        const parsed = parseFloat(newMinVal);
+        if (isNaN(parsed)) return;
+        const updated = (activeSubject.customCutoffs || []).map((c) =>
+          c.grade === gradeLabel ? { ...c, min: parsed } : c
+        );
+        saveSubjectToStore({
+          ...activeSubject,
+          customCutoffs: updated
+        });
+      };
+
+      const openEditSubjectModal = () => {
+        if (!activeSubject) return;
+        setSubjName(activeSubject.name);
+        setSubjColor(activeSubject.iconColor || 'indigo');
+        setSubjUse85(Boolean(activeSubject.use85Scale));
+        setSubjUseWeighted(Boolean(activeSubject.useWeightedView));
+        setGuidelineTest(String(activeSubject.guidelines?.Test ?? 60));
+        setGuidelineQuiz(String(activeSubject.guidelines?.Quiz ?? 30));
+        setIsSubjectModalOpen(true);
+      };
+
+      const handleSaveSubject = (e) => {
+        e.preventDefault();
+        const cleanName = subjName.trim() || 'Untitled Math Class';
+        const newGuidelines = {
+          Test: Math.max(1, parseFloat(guidelineTest) || 60),
+          Quiz: Math.max(1, parseFloat(guidelineQuiz) || 30)
+        };
+
+        saveSubjectToStore({
+          ...activeSubject,
+          name: cleanName,
+          iconColor: subjColor,
+          use85Scale: subjUse85,
+          useWeightedView: subjUseWeighted,
+          guidelines: newGuidelines
+        });
+
+        setIsSubjectModalOpen(false);
+      };
+
+      const filteredEntries = useMemo(() => {
+        if (!activeSubject?.entries) return [];
+        if (categoryFilter === 'All') return activeSubject.entries;
+        if (categoryFilter === 'Assessments') {
+          return activeSubject.entries.filter((e) => e.category === 'Test' || e.category === 'Quiz');
+        }
+        return activeSubject.entries.filter((e) => e.category === categoryFilter);
+      }, [activeSubject, categoryFilter]);
+
+      return (
+        <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row font-sans selection:bg-indigo-500 selection:text-white">
+          {/* LEFT SIDEBAR */}
+          <aside className="w-full md:w-72 lg:w-80 bg-slate-900/90 border-b md:border-b-0 md:border-r border-slate-800 flex flex-col shrink-0">
+            <div className="p-5 border-b border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+                  <Calculator className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="font-bold text-lg tracking-tight text-white leading-tight">
+                    GradePoint Pro
+                  </h1>
+                  <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                    <Cloud className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Saved on Device</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-3 md:p-4 flex md:flex-col gap-2.5 overflow-x-auto md:overflow-y-auto flex-1">
+              <div className="hidden md:flex items-center justify-between px-2 mb-1">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  Your Subjects
+                </span>
+              </div>
+
+              {subjects.map((subj) => {
+                const isActive = subj.id === activeSubject?.id;
+                const subjStanding = calculateSubjectStanding(subj);
+                const pct = subjStanding?.overallPercent ?? null;
+                const letterObj = subjStanding?.gradeInfo || {
+                  letter: '—',
+                  bg: 'bg-slate-800',
+                  color: 'text-slate-400'
+                };
+
+                return (
+                  <button
+                    key={subj.id}
+                    onClick={() => setActiveSubjectId(subj.id)}
+                    className={`group relative flex items-center justify-between gap-3 px-4 py-3.5 rounded-2xl text-left transition-all shrink-0 md:shrink min-w-[215px] md:min-w-0 border ${
+                      isActive
+                        ? 'bg-slate-800/95 border-indigo-500/50 shadow-lg shadow-slate-950/50'
+                        : 'bg-slate-900/40 hover:bg-slate-800/50 border-slate-800/80 text-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className={`w-3 h-10 rounded-full bg-gradient-to-b ${
+                          COLOR_THEMES[subj.iconColor] || COLOR_THEMES.indigo
+                        }`}
+                      />
+                      <div className="min-w-0">
+                        <div className="font-semibold text-sm md:text-base text-white truncate">
+                          {subj.name}
+                        </div>
+                        <div className="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5 truncate">
+                          <span>{subj.entries?.length || 0} items</span>
+                          <span>•</span>
+                          <span>{subj.useWeightedView ? 'AP Stats Weighted (85/10/5)' : 'Objective %'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <span
+                        className={`inline-block px-2.5 py-1 rounded-lg text-xs font-bold border ${letterObj.bg} ${letterObj.color}`}
+                      >
+                        {letterObj.letter}
+                      </span>
+                      {pct !== null && (
+                        <div className="text-xs text-slate-400 mt-1 font-medium">{pct}%</div>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {activeSubject && (
+              <div className="hidden md:block p-4 m-4 rounded-2xl bg-slate-950/80 border border-slate-800/90 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    AP Stats Weights
+                  </span>
+                  <button
+                    onClick={openEditSubjectModal}
+                    className="text-xs text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1"
+                  >
+                    <Edit3 className="w-3 h-3" /> Edit
+                  </button>
+                </div>
+                <div className="space-y-1.5 text-xs text-slate-300">
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-slate-900 border border-slate-800">
+                    <span className="text-rose-400 font-bold">Assessments</span>
+                    <span className="font-bold text-white">85%</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-slate-900 border border-slate-800">
+                    <span className="text-emerald-400 font-bold">Take-Home &amp; RC</span>
+                    <span className="font-bold text-white">10%</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-slate-900 border border-slate-800">
+                    <span className="text-amber-400 font-bold">EFFL</span>
+                    <span className="font-bold text-white">5%</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </aside>
+
+          {/* MAIN CONTENT AREA */}
+          {activeSubject && stats ? (
+            <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+              <header className="p-5 md:p-7 border-b border-slate-800/80 bg-slate-900/40 backdrop-blur-md sticky top-0 z-20">
+                <div className="max-w-6xl mx-auto flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
+                        {activeSubject.name}
+                      </h2>
+                      <button
+                        onClick={openEditSubjectModal}
+                        className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium flex items-center gap-1.5 transition"
+                      >
+                        <Settings className="w-3.5 h-3.5" />
+                        Subject Settings
+                      </button>
+                    </div>
+                    <p className="text-sm text-slate-400 mt-1">
+                      Assessments: <strong className="text-rose-300">Test</strong> ({activeSubject.guidelines?.Test} pts) •{' '}
+                      <strong className="text-indigo-300">Quiz</strong> ({activeSubject.guidelines?.Quiz} pts) •{' '}
+                      <strong className="text-emerald-300">Take-Home &amp; Reading Checks</strong> (Custom Pts) •{' '}
+                      <strong className="text-amber-300">EFFL</strong> (~5%)
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <button
+                      onClick={() => {
+                        setWhatIfCategory('Test');
+                        setWhatIfMaxPoints(String(activeSubject.guidelines?.Test || 60));
+                        setWhatIfHypotheticalEarned(
+                          String(Math.round((activeSubject.guidelines?.Test || 60) * 0.9))
+                        );
+                        setIsWhatIfOpen(true);
+                      }}
+                      className="px-4 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-semibold text-sm flex items-center gap-2 border border-slate-700 transition"
+                    >
+                      <Sparkles className="w-4 h-4 text-amber-400" />
+                      <span>What-If Calculator</span>
+                    </button>
+
+                    <button
+                      onClick={() => openNewEntryModal('Quiz')}
+                      className="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-semibold text-sm flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition"
+                    >
+                      <Plus className="w-5 h-5" />
+                      <span>Add Grade</span>
+                    </button>
+                  </div>
+                </div>
+              </header>
+
+              <div className="p-5 md:p-7 max-w-6xl w-full mx-auto space-y-6 flex-1">
+                {/* TOP CONFIGURATION BAR */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* View Mode Toggle Card */}
+                  <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-4">
+                    <div>
+                      <div className="font-bold text-white text-sm">Calculation View</div>
+                      <div className="text-xs text-slate-400 mt-0.5">
+                        {activeSubject.useWeightedView ? 'AP Stats Weighted (85/10/5)' : 'Objective Total Pts'}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-slate-950 border border-slate-800">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleWeightedView(true)}
+                        className={`px-3 py-2 rounded-lg text-xs font-bold transition ${
+                          activeSubject.useWeightedView ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        Weighted
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleToggleWeightedView(false)}
+                        className={`px-3 py-2 rounded-lg text-xs font-bold transition ${
+                          !activeSubject.useWeightedView ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        Objective
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 85% Scale Toggle Card */}
+                  <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-4">
+                    <label className="flex items-center gap-3 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(activeSubject.use85Scale)}
+                        onChange={(e) => handleToggle85Scale(e.target.checked)}
+                        className="sr-only"
+                      />
+                      <div className={`w-6 h-6 rounded-lg flex items-center justify-center border transition ${activeSubject.use85Scale ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-800 border-slate-700 text-transparent'}`}>
+                        <Check className="w-4 h-4 stroke-[3]" />
+                      </div>
+                      <div>
+                        <div className="font-bold text-white text-sm">85% A- Grade Scale</div>
+                        <div className="text-xs text-slate-400">A- = 85%, B- = 75%, C- = 65%</div>
+                      </div>
+                    </label>
+
+                    <button
+                      onClick={() => setIsScaleModalOpen(true)}
+                      className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700"
+                    >
+                      Cutoffs
+                    </button>
+                  </div>
+                </div>
+
+                {/* HERO SUMMARY & 3 SYLLABUS PILLARS */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                  {/* Overall Standing Card */}
+                  <div className="lg:col-span-5 p-6 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/40 border border-slate-800 flex flex-col justify-between">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">
+                          {activeSubject.useWeightedView ? 'Weighted Semester Standing' : 'Objective Course Standing'}
+                        </span>
+                        <div className="mt-2 flex items-baseline gap-3">
+                          <span className="text-4xl md:text-5xl font-black tracking-tight text-white">
+                            {stats.overallPercent !== null ? `${stats.overallPercent}%` : '—'}
+                          </span>
+                        </div>
+
+                        {activeSubject.useWeightedView ? (
+                          <div className="mt-2 space-y-0.5 text-xs text-slate-300">
+                            <div>Objective Total Pts: <strong className="text-white">{stats.objectivePercent !== null ? `${stats.objectivePercent}%` : '—'}</strong></div>
+                            <div className="text-slate-400">Assessments 85% • Take-Home 10% • EFFL 5%</div>
+                          </div>
+                        ) : (
+                          <div className="mt-2 text-xs text-slate-300">
+                            Total Points: <strong className="text-white">{stats.totalEarned} / {stats.totalMax} pts</strong>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className={`w-20 h-20 md:w-24 md:h-24 rounded-3xl border-2 flex flex-col items-center justify-center shrink-0 shadow-xl ${stats.gradeInfo.bg}`}>
+                        <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Grade</span>
+                        <span className={`text-3xl md:text-4xl font-black ${stats.gradeInfo.color}`}>{stats.gradeInfo.letter}</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 pt-4 border-t border-slate-800/80 text-xs text-slate-400">
+                      {stats.overallPercent !== null && stats.gradeInfo.nextGrade ? (
+                        <div className="flex items-center gap-2">
+                          <TrendingUp className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span>Need <strong className="text-white">{roundToTwo(stats.gradeInfo.nextGrade.min - stats.overallPercent)}%</strong> more for <strong className="text-white">{stats.gradeInfo.nextGrade.grade}</strong> ({stats.gradeInfo.nextGrade.min}%)</span>
+                        </div>
+                      ) : (
+                        <span>Add your first test, quiz, or take-home assignment!</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 3 Syllabus Pillars: Assessments (~85%), Take-Home & RC (~10%), EFFL (~5%) */}
+                  {activeSubject.useWeightedView ? (
+                    <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                      {/* Pillar 1: Assessments (~85%) */}
+                      <div className="p-4 rounded-2xl bg-slate-900/85 border border-slate-800 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center justify-between gap-1 mb-2">
+                            <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">
+                              Assessments
+                            </span>
+                            <span className="text-xs font-extrabold text-indigo-300 bg-indigo-500/15 px-2 py-0.5 rounded-md">
+                              ~85%
+                            </span>
+                          </div>
+
+                          <div className="my-2">
+                            <div className="text-2xl font-extrabold text-white">
+                              {stats.assessmentsPct !== null ? `${stats.assessmentsPct}%` : '—'}
+                            </div>
+                            <div className="text-xs text-slate-400">
+                              {stats.assessmentsEarned} / {stats.assessmentsMax} pts ({stats.assessmentsCount})
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-1.5 pt-2">
+                          <button
+                            onClick={() => openNewEntryModal('Test')}
+                            className="w-full py-2 px-3 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/30 text-xs font-bold text-rose-300 flex items-center justify-center gap-1.5 transition"
+                          >
+                            <Plus className="w-3.5 h-3.5" /> Add Test ({activeSubject.guidelines?.Test}p)
+                          </button>
+                          <button
+                            onClick={() => openNewEntryModal('Quiz')}
+                            className="w-full py-2 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 text-xs font-bold text-indigo-300 flex items-center justify-center gap-1.5 transition"
+                          >
+                            <Plus className="w-3.5 h-3.5" /> Add Quiz ({activeSubject.guidelines?.Quiz}p)
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Pillar 2: Take-Home Assignments & Reading Checks (~10%) */}
+                      <div className="p-4 rounded-2xl bg-slate-900/85 border border-slate-800 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center justify-between gap-1 mb-2">
+                            <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 truncate">
+                              Take-Home &amp; RC
+                            </span>
+                            <span className="text-xs font-extrabold text-emerald-300 bg-emerald-500/15 px-2 py-0.5 rounded-md shrink-0">
+                              ~10%
+                            </span>
+                          </div>
+
+                          <div className="my-2">
+                            <div className="text-2xl font-extrabold text-white">
+                              {stats.takeHomePct !== null ? `${stats.takeHomePct}%` : '—'}
+                            </div>
+                            <div className="text-xs text-slate-400">
+                              {stats.takeHomeEarned} / {stats.takeHomeMax} pts ({stats.takeHomeCount})
+                            </div>
+                          </div>
+                          <div className="text-[11px] text-slate-400">Custom points earned / out of</div>
+                        </div>
+
+                        <button
+                          onClick={() => openNewEntryModal('Assignment')}
+                          className="w-full py-2.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-xs font-bold text-emerald-300 flex items-center justify-center gap-1.5 transition"
+                        >
+                          <Plus className="w-3.5 h-3.5" /> Add Take-Home / RC
+                        </button>
+                      </div>
+
+                      {/* Pillar 3: EFFL (~5%) */}
+                      <div className="p-4 rounded-2xl bg-slate-900/85 border border-slate-800 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center justify-between gap-1 mb-2">
+                            <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                              EFFL
+                            </span>
+                            <span className="text-xs font-extrabold text-amber-300 bg-amber-500/15 px-2 py-0.5 rounded-md">
+                              ~5%
+                            </span>
+                          </div>
+
+                          <div className="my-2">
+                            <label className="block text-[10px] font-semibold uppercase text-slate-400 mb-1">EFFL %</label>
+                            <div className="flex items-center gap-1.5">
+                              <input
+                                type="number"
+                                step="any"
+                                min="0"
+                                max="110"
+                                value={activeSubject.efflPercent ?? ''}
+                                onChange={(e) => handleEfflChange(e.target.value)}
+                                className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white font-extrabold text-base focus:outline-none focus:border-amber-400"
+                              />
+                              <span className="text-sm font-bold text-slate-300">%</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-800/80">
+                          <span>Quick:</span>
+                          <div className="flex items-center gap-1">
+                            {[100, 95, 90].map((preset) => (
+                              <button
+                                key={preset}
+                                type="button"
+                                onClick={() => handleEfflChange(String(preset))}
+                                className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold"
+                              >
+                                {preset}%
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-2 gap-3.5">
+                      {(['Test', 'Quiz', 'Assignment', 'Other']).map((cat) => {
+                        const catData = stats.byCategory[cat];
+                        const catPct = catData.max > 0 ? roundToTwo((catData.earned / catData.max) * 100) : null;
+                        const meta = CATEGORY_META[cat];
+                        return (
+                          <div key={cat} className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
+                            <div className="flex items-center justify-between">
+                              <span className="px-2.5 py-1 rounded-lg text-xs font-bold border bg-slate-800 text-slate-300">{meta.shortLabel}</span>
+                            </div>
+                            <div className="my-3">
+                              <div className="text-2xl font-extrabold text-white">{catPct !== null ? `${catPct}%` : '—'}</div>
+                              <div className="text-xs text-slate-400">{roundToTwo(catData.earned)} / {roundToTwo(catData.max)} pts</div>
+                            </div>
+                            <button onClick={() => openNewEntryModal(cat)} className="w-full py-2 rounded-xl bg-slate-800 text-xs font-semibold text-slate-200 flex items-center justify-center gap-1">
+                              <Plus className="w-3.5 h-3.5" /> Add {meta.shortLabel}
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* GRADEBOOK ENTRIES LIST */}
+                <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden">
+                  <div className="p-4 md:p-5 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+                      {[
+                        { id: 'All', label: 'All Entries' },
+                        { id: 'Assessments', label: 'Assessments' },
+                        { id: 'Test', label: `Tests (${activeSubject.guidelines?.Test}p)` },
+                        { id: 'Quiz', label: `Quizzes (${activeSubject.guidelines?.Quiz}p)` },
+                        { id: 'Assignment', label: 'Take-Home & RC' },
+                        { id: 'Other', label: 'Other' }
+                      ].map((tab) => {
+                        const active = categoryFilter === tab.id;
+                        return (
+                          <button
+                            key={tab.id}
+                            onClick={() => setCategoryFilter(tab.id)}
+                            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition shrink-0 ${
+                              active ? 'bg-indigo-600 text-white shadow' : 'bg-slate-800/80 text-slate-400 hover:text-white'
+                            }`}
+                          >
+                            {tab.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="text-xs text-slate-400 font-medium shrink-0">
+                      Showing <strong className="text-white">{filteredEntries.length}</strong> entries
+                    </div>
+                  </div>
+
+                  {filteredEntries.length === 0 ? (
+                    <div className="p-12 text-center">
+                      <div className="w-14 h-14 rounded-2xl bg-slate-800/80 border border-slate-700 flex items-center justify-center mx-auto mb-3 text-slate-400">
+                        <FileText className="w-7 h-7" />
+                      </div>
+                      <h3 className="text-base font-bold text-white">No Grade Entries Yet</h3>
+                      <button
+                        onClick={() => openNewEntryModal('Quiz')}
+                        className="mt-4 px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold text-sm inline-flex items-center gap-2"
+                      >
+                        <Plus className="w-4 h-4" /> Add First Entry
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-slate-800/80">
+                      {filteredEntries.map((entry) => {
+                        const entryPct = entry.maxPoints > 0 ? roundToTwo((entry.earnedPoints / entry.maxPoints) * 100) : 0;
+                        const entryGrade = getLetterGradeInfo(entryPct, stats.activeCutoffs);
+                        const catMeta = CATEGORY_META[entry.category] || CATEGORY_META.Other;
+
+                        return (
+                          <div key={entry.id} className="p-4 md:p-5 hover:bg-slate-800/30 transition flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="flex items-start gap-3.5 min-w-0">
+                              <span className={`px-3 py-1 rounded-xl text-xs font-bold border ${catMeta.badgeClass}`}>
+                                {catMeta.shortLabel}
+                              </span>
+                              <div className="min-w-0">
+                                <h4 className="font-bold text-white text-base truncate">{entry.title}</h4>
+                                <div className="flex items-center gap-2 text-xs text-slate-400 mt-1">
+                                  <span>{entry.date}</span>
+                                  {entry.rawNote && (
+                                    <>
+                                      <span>•</span>
+                                      <span className="text-slate-300 bg-slate-800/90 px-2 py-0.5 rounded-md border border-slate-700">{entry.rawNote}</span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-800">
+                              <div className="text-left sm:text-right">
+                                <div className="text-lg font-extrabold text-white">
+                                  {roundToTwo(entry.earnedPoints)} <span className="text-slate-400 font-normal text-sm">/ {roundToTwo(entry.maxPoints)} pts</span>
+                                </div>
+                                <div className="text-xs font-semibold text-slate-400">{entryPct}%</div>
+                              </div>
+
+                              <div className={`w-11 h-11 rounded-2xl border flex items-center justify-center font-extrabold text-sm ${entryGrade.bg} ${entryGrade.color}`}>
+                                {entryGrade.letter}
+                              </div>
+
+                              <div className="flex items-center gap-1.5">
+                                <button onClick={() => openEditEntryModal(entry)} className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+                                  <Edit3 className="w-4 h-4" />
+                                </button>
+                                <button onClick={() => handleDeleteEntry(entry.id)} className="p-2.5 rounded-xl bg-slate-800 hover:bg-rose-500/20 hover:text-rose-400 text-slate-400 transition">
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </main>
+          ) : null}
+
+          {/* ADD / EDIT GRADE ENTRY MODAL */}
+          {isAddEntryOpen && activeSubject && (
+            <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 md:p-7 shadow-2xl space-y-5 my-auto">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-white">
+                      {editingEntry ? 'Edit Grade Entry' : 'Add Grade to ' + activeSubject.name}
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Select <strong className="text-slate-200">Test</strong> ({activeSubject.guidelines?.Test}p), <strong className="text-slate-200">Quiz</strong> ({activeSubject.guidelines?.Quiz}p), or custom <strong className="text-slate-200">Take-Home / RC</strong>.
+                    </p>
+                  </div>
+                  <button onClick={() => setIsAddEntryOpen(false)} className="p-2.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleSaveEntry} className="space-y-5">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                      1. Select Category
+                    </label>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      {['Test', 'Quiz', 'Assignment', 'Other'].map((cat) => {
+                        const isSelected = entryCategory === cat;
+                        let title = cat;
+                        let sub = '';
+                        if (cat === 'Test') {
+                          title = 'Test (Assessment)';
+                          sub = `Scale to ${activeSubject.guidelines?.Test} pts`;
+                        } else if (cat === 'Quiz') {
+                          title = 'Quiz (Assessment)';
+                          sub = `Scale to ${activeSubject.guidelines?.Quiz} pts`;
+                        } else if (cat === 'Assignment') {
+                          title = 'Take-Home / RC';
+                          sub = 'Custom Points Earned / Out Of';
+                        } else {
+                          title = 'Other';
+                          sub = 'Custom Points';
+                        }
+
+                        return (
+                          <button
+                            type="button"
+                            key={cat}
+                            onClick={() => handleSelectEntryCategory(cat)}
+                            className={`p-3.5 rounded-2xl border text-left transition flex flex-col justify-between ${
+                              isSelected ? 'bg-indigo-600 text-white border-indigo-500 shadow' : 'bg-slate-800/70 border-slate-700/80 text-slate-300 hover:bg-slate-800'
+                            }`}
+                          >
+                            <span className="font-bold text-sm">{title}</span>
+                            <span className="text-xs mt-1 opacity-90">{sub}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Title / Label</label>
+                      <input
+                        type="text"
+                        placeholder={entryCategory === 'Assignment' ? 'e.g., Chapter 3 Reading Check' : `e.g., Unit 2 ${entryCategory}`}
+                        value={entryTitle}
+                        onChange={(e) => setEntryTitle(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-indigo-500 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Date</label>
+                      <input
+                        type="date"
+                        value={entryDate}
+                        onChange={(e) => setEntryDate(e.target.value)}
+                        className="w-full px-3.5 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-indigo-500 text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Input Mode Switcher for Test / Quiz */}
+                  {(entryCategory === 'Test' || entryCategory === 'Quiz') && (
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                        2. Input Method (Scales out of {targetGuidelineMax} pts)
+                      </label>
+                      <div className="grid grid-cols-3 gap-2 p-1.5 rounded-2xl bg-slate-950 border border-slate-800">
+                        <button
+                          type="button"
+                          onClick={() => setCalcMode('direct')}
+                          className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition ${calcMode === 'direct' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}
+                        >
+                          <Hash className="w-3.5 h-3.5" /> Direct
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCalcMode('percent')}
+                          className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition ${calcMode === 'percent' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}
+                        >
+                          <Percent className="w-3.5 h-3.5" /> % Score
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCalcMode('rescale')}
+                          className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition ${calcMode === 'rescale' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}
+                        >
+                          <RefreshCw className="w-3.5 h-3.5" /> Rescale
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Dynamic Fields */}
+                  {((entryCategory !== 'Test' && entryCategory !== 'Quiz') || calcMode === 'direct') && (
+                    <div className="p-4 rounded-2xl bg-slate-950/90 border border-slate-800 space-y-3">
+                      <div className="text-xs text-slate-400">
+                        {entryCategory === 'Assignment' || entryCategory === 'Other' ? (
+                          <>Enter custom points earned and custom total max points for this assignment.</>
+                        ) : (
+                          <>Enter earned points out of your <strong className="text-white">{activeSubject.guidelines?.[entryCategory]} pt</strong> guideline.</>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs text-slate-400 mb-1 font-medium">Points Earned</label>
+                          <input
+                            type="number"
+                            step="any"
+                            required
+                            placeholder="e.g., 9.5"
+                            value={directEarned}
+                            onChange={(e) => setDirectEarned(e.target.value)}
+                            className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-lg font-bold focus:outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-slate-400 mb-1 font-medium">
+                            {entryCategory === 'Assignment' || entryCategory === 'Other' ? 'Total Points Out Of' : 'Max Points'}
+                          </label>
+                          <input
+                            type="number"
+                            step="any"
+                            required
+                            placeholder="e.g., 10"
+                            value={directMax}
+                            onChange={(e) => setDirectMax(e.target.value)}
+                            className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-lg font-bold focus:outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {(entryCategory === 'Test' || entryCategory === 'Quiz') && calcMode === 'percent' && (
+                    <div className="p-4 rounded-2xl bg-slate-950/90 border border-slate-800 space-y-3">
+                      <div className="text-xs text-slate-400">Enter percentage score (%) to auto-scale out of <strong className="text-white">{targetGuidelineMax} pts</strong>.</div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs text-slate-400 mb-1 font-medium">Percentage (%)</label>
+                          <input
+                            type="number"
+                            step="any"
+                            required
+                            placeholder="e.g., 92"
+                            value={percentInput}
+                            onChange={(e) => setPercentInput(e.target.value)}
+                            className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-lg font-bold"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-slate-400 mb-1 font-medium">Scale Out Of</label>
+                          <input
+                            type="number"
+                            step="any"
+                            required
+                            value={targetGuidelineMax}
+                            onChange={(e) => setTargetGuidelineMax(e.target.value)}
+                            className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-lg font-bold"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {(entryCategory === 'Test' || entryCategory === 'Quiz') && calcMode === 'rescale' && (
+                    <div className="p-4 rounded-2xl bg-slate-950/90 border border-slate-800 space-y-3">
+                      <div className="text-xs text-slate-400">Rescale raw score fraction to <strong className="text-white">{targetGuidelineMax} pts</strong>.</div>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-xs text-slate-400 mb-1 font-medium">Earned</label>
+                          <input
+                            type="number"
+                            step="any"
+                            required
+                            placeholder="18"
+                            value={rawEarned}
+                            onChange={(e) => setRawEarned(e.target.value)}
+                            className="w-full px-3 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-slate-400 mb-1 font-medium">Out Of</label>
+                          <input
+                            type="number"
+                            step="any"
+                            required
+                            placeholder="20"
+                            value={rawOutOf}
+                            onChange={(e) => setRawOutOf(e.target.value)}
+                            className="w-full px-3 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-slate-400 mb-1 font-medium">Scale To</label>
+                          <input
+                            type="number"
+                            step="any"
+                            required
+                            value={targetGuidelineMax}
+                            onChange={(e) => setTargetGuidelineMax(e.target.value)}
+                            className="w-full px-3 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 flex items-center justify-between">
+                    <div>
+                      <span className="text-xs uppercase font-bold tracking-wider text-indigo-300">Preview</span>
+                      {calculatedPreview.valid ? (
+                        <div className="text-lg font-extrabold text-white mt-0.5">
+                          {calculatedPreview.earned} / {calculatedPreview.max} pts <span className="text-indigo-300 text-sm font-semibold">({calculatedPreview.percent}%)</span>
+                        </div>
+                      ) : (
+                        <div className="text-xs text-slate-400 mt-0.5">Enter score values above...</div>
+                      )}
+                    </div>
+                    {calculatedPreview.valid && stats && (
+                      <div className="text-right">
+                        <span className="text-xs text-slate-400 block">Grade</span>
+                        <span className="text-xl font-black text-white">{getLetterGradeInfo(calculatedPreview.percent, stats.activeCutoffs).letter}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-end gap-3 pt-2">
+                    <button type="button" onClick={() => setIsAddEntryOpen(false)} className="px-5 py-3 rounded-xl bg-slate-800 text-slate-300 text-sm font-semibold">Cancel</button>
+                    <button type="submit" disabled={!calculatedPreview.valid} className="px-6 py-3 rounded-xl bg-indigo-600 disabled:opacity-40 text-white font-bold text-sm shadow-lg">Save Entry</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* EDIT SUBJECT MODAL */}
+          {isSubjectModalOpen && (
+            <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 md:p-7 shadow-2xl space-y-5 my-auto">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-white">AP Stats Guidelines &amp; Settings</h3>
+                    <p className="text-xs text-slate-400">Configure default point scaling for tests and quizzes.</p>
+                  </div>
+                  <button onClick={() => setIsSubjectModalOpen(false)} className="p-2.5 rounded-xl bg-slate-800 text-slate-400">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleSaveSubject} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Subject Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={subjName}
+                      onChange={(e) => setSubjName(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white font-semibold text-sm"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800">
+                      <label className="block text-xs font-bold text-rose-400 mb-1">Test Scale Pts</label>
+                      <input
+                        type="number"
+                        step="any"
+                        required
+                        value={guidelineTest}
+                        onChange={(e) => setGuidelineTest(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold"
+                      />
+                    </div>
+                    <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800">
+                      <label className="block text-xs font-bold text-indigo-400 mb-1">Quiz Scale Pts</label>
+                      <input
+                        type="number"
+                        step="any"
+                        required
+                        value={guidelineQuiz}
+                        onChange={(e) => setGuidelineQuiz(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+                    <button type="button" onClick={() => setIsSubjectModalOpen(false)} className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-sm font-semibold">Cancel</button>
+                    <button type="submit" className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold shadow-lg">Save Settings</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* SCALE CUTOFFS MODAL */}
+          {isScaleModalOpen && activeSubject && stats && (
+            <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 md:p-7 shadow-2xl space-y-5 my-auto">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Grade Bounds &amp; Cutoffs</h3>
+                    <p className="text-xs text-slate-400">Switch between 85% A- scale and Standard 90% scale.</p>
+                  </div>
+                  <button onClick={() => setIsScaleModalOpen(false)} className="p-2.5 rounded-xl bg-slate-800 text-slate-400">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => handleToggle85Scale(true)}
+                    className={`p-3.5 rounded-2xl border text-left transition ${activeSubject.use85Scale ? 'bg-indigo-600/20 border-indigo-500 text-white' : 'bg-slate-950 border-slate-800 text-slate-400'}`}
+                  >
+                    <div className="font-bold text-sm">85% A- Scale (10-pt bounds)</div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleToggle85Scale(false)}
+                    className={`p-3.5 rounded-2xl border text-left transition ${!activeSubject.use85Scale ? 'bg-indigo-600/20 border-indigo-500 text-white' : 'bg-slate-950 border-slate-800 text-slate-400'}`}
+                  >
+                    <div className="font-bold text-sm">Standard 90% A- Scale</div>
+                  </button>
+                </div>
+                <div className="flex justify-end pt-2">
+                  <button onClick={() => setIsScaleModalOpen(false)} className="px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-sm">Done</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* WHAT-IF CALCULATOR MODAL */}
+          {isWhatIfOpen && activeSubject && stats && (
+            <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 md:p-7 shadow-2xl space-y-6 my-auto">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                  <div className="flex items-center gap-2.5">
+                    <Sparkles className="w-6 h-6 text-amber-400" />
+                    <div>
+                      <h3 className="text-xl font-bold text-white">What-If Grade Calculator</h3>
+                      <p className="text-xs text-slate-400">Simulate upcoming scores.</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setIsWhatIfOpen(false)} className="p-2.5 rounded-xl bg-slate-800 text-slate-400">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {(['Test', 'Quiz']).map((cat) => {
+                    const pts = activeSubject.guidelines?.[cat] ?? (cat === 'Test' ? 60 : 30);
+                    const active = whatIfCategory === cat;
+                    return (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => {
+                          setWhatIfCategory(cat);
+                          setWhatIfMaxPoints(String(pts));
+                          setWhatIfHypotheticalEarned(String(roundToTwo(pts * 0.9)));
+                        }}
+                        className={`p-3 rounded-2xl border text-left transition ${active ? 'bg-indigo-600 text-white border-indigo-500' : 'bg-slate-950 border-slate-800 text-slate-300'}`}
+                      >
+                        <div className="font-bold text-xs">Next {cat}</div>
+                        <div className="text-sm font-extrabold mt-0.5">Out of {pts} pts</div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-950 border border-slate-800">
+                  <div>
+                    <label className="block text-xs text-slate-400 mb-1 font-medium">Earned Pts</label>
+                    <input
+                      type="number"
+                      step="any"
+                      value={whatIfHypotheticalEarned}
+                      onChange={(e) => setWhatIfHypotheticalEarned(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-slate-400 mb-1 font-medium">Max Pts</label>
+                    <input
+                      type="number"
+                      step="any"
+                      value={whatIfMaxPoints}
+                      onChange={(e) => setWhatIfMaxPoints(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold"
+                    />
+                  </div>
+                </div>
+                {(() => {
+                  const hypE = parseFloat(whatIfHypotheticalEarned) || 0;
+                  const hypM = parseFloat(whatIfMaxPoints) || 0;
+                  const simulatedSubj = {
+                    ...activeSubject,
+                    entries: [
+                      ...(activeSubject.entries || []),
+                      { id: 'temp-whatif', category: whatIfCategory, earnedPoints: hypE, maxPoints: hypM }
+                    ]
+                  };
+                  const simStats = calculateSubjectStanding(simulatedSubj);
+                  const newPct = simStats?.overallPercent ?? null;
+                  const newGrade = getLetterGradeInfo(newPct, stats.activeCutoffs);
+
+                  return (
+                    <div className="p-5 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 flex items-center justify-between">
+                      <div>
+                        <span className="text-xs font-bold uppercase tracking-wider text-indigo-300">Projected New Average</span>
+                        <div className="text-2xl font-black text-white mt-1">
+                          {newPct !== null ? `${newPct}%` : '—'}
+                        </div>
+                      </div>
+                      <div className={`w-16 h-16 rounded-2xl border flex items-center justify-center text-2xl font-black ${newGrade.bg} ${newGrade.color}`}>
+                        {newGrade.letter}
+                      </div>
+                    </div>
+                  );
+                })()}
+                <div className="flex justify-end">
+                  <button onClick={() => setIsWhatIfOpen(false)} className="px-6 py-2.5 rounded-xl bg-slate-800 text-white font-semibold text-sm">Close</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
